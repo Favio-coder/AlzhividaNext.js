@@ -7,7 +7,11 @@ export default {
   ],
   theme: {
     extend: {
+    //Variables globales (Declara colores, estilos y más para usarlo en tus componentes)
       colors: {
+        colorHover: "#5f17bf",
+        colorFondo: "#e7d7fd",
+        colorLoginForm: "#161616",
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
