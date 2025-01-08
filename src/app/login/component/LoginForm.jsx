@@ -3,6 +3,9 @@
 import React from "react";
 import { useState } from "react";
 import Link from "next/link";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import Alert from "./ui/Alert";
 
 export default function LoginForm() {
     //Inicializa en vacio
@@ -12,16 +15,60 @@ export default function LoginForm() {
     //Inicializa en falso
     const [showPassword, setShowPassword] = useState(false);
 
+    //Cambio de estados de componentes 
+    const [isAlertVisibleEmail, setIsAlertVisibleEmail] = useState(false);
+    const [isAlertVisiblePassword, setIsAlertVisiblePassword] = useState(false);
+
     //Función para enviar datos
     const enviarFormulario = (e) => {
         e.preventDefault();
-        console.log("Email:", email);
-        console.log("Password:", password);
+
+        //Condicionales para detectar si los elementos se estan enviando completos 
+        /**
+         * true = listo para enviar
+         * false = no se envio
+         */
+
+        let decisionCorreo = true;
+        let decisionContraseña = true;
+
+        // Validar email
+        if (email === '') {
+            decisionCorreo = false;
+            if (!isAlertVisibleEmail) {
+                setIsAlertVisibleEmail(true); // Muestra la alerta para el email vacío
+            }
+        } else {
+            if (isAlertVisibleEmail) {
+                setIsAlertVisibleEmail(false); // Oculta la alerta si el email es válido
+            }
+        }
+
+        // Validar contraseña
+        if (password === '') {
+            decisionContraseña = false;
+            if (!isAlertVisiblePassword) {
+                setIsAlertVisiblePassword(true); // Muestra la alerta para la contraseña vacía
+            }
+        } else {
+            if (isAlertVisiblePassword) {
+                setIsAlertVisiblePassword(false); // Oculta la alerta si la contraseña es válida
+            }
+        }
+
+        // Verificar si ambos campos son válidos
+        if (decisionCorreo && decisionContraseña) {
+            console.log("Enviado");
+            console.log("Email:", email);
+            console.log("Password:", password);
+        }
+
+
+
     };
 
-    const mostrarContraseña = (e) =>{
+    const mostrarContraseña = (e) => {
         setShowPassword(prevState => !prevState)
-        console.log("Se activo estado de mostrar contraseña a: " + !showPassword)
     };
 
     return (
@@ -35,6 +82,7 @@ export default function LoginForm() {
                     </Link>
                     <a href="">
                         <p className="text-2xl">Alzhivida</p>
+
                     </a>
                     <span className="w-35"></span>
                 </div>
@@ -59,22 +107,45 @@ export default function LoginForm() {
                                     placeholder="Correo electrónico"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    required
+
+                                />
+                                <Alert
+                                    isMessageAlert={isAlertVisibleEmail}
+                                    typeProp="advertencia"
+                                    messageAlert="Debe rellenar este campo"
                                 />
                             </div>
 
+
                             <div className="mb-6">
-                                <input
-                                    type="password"
-                                    name="password"
-                                    id="password"
-                                    className="w-full py-4 px-8 bg-slate-200 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-600 outline-slate-500 border-solid border-2 border-slate-300"
-                                    placeholder="Contraseña"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
+                                <div className="flex items-center relative z-50">
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        name="password"
+                                        id="password"
+                                        className="w-full py-4 px-8 bg-slate-200 placeholder:font-semibold rounded hover:ring-1 hover:ring-gray-600 outline-slate-500 border-solid border-2 border-slate-300"
+                                        placeholder="Contraseña"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+
+                                    />
+
+                                    <span
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
+                                        onClick={mostrarContraseña}
+                                    >
+                                        {showPassword && <FontAwesomeIcon icon={faEyeSlash} />}
+                                        {!showPassword && <FontAwesomeIcon icon={faEye} />}
+                                    </span>
+                                </div>
+                                <Alert
+                                    isMessageAlert={isAlertVisiblePassword}
+                                    typeProp="advertencia"
+                                    messageAlert="Debe rellenar este campo"
                                 />
                             </div>
+
+
 
                             <div className="mb-12">
                                 <button type="submit" className="py-4 bg-colorHover w-full rounded text-blue-50 font-bold hover:shadow-md">Ingresar</button>
@@ -94,18 +165,18 @@ export default function LoginForm() {
 
                     <div className="flex justify-center container mx-auto mt-6 text-colorHover text-sm">
                         <div className="flex flex-col sm:flex-row justify-between md:w-1/2 items-center">
-                                
-                                <Link href="">
-                                    <div className="flex hover:underline">¿Olvidaste la contraseña?</div>
-                                </Link>
 
-                                
-                                <Link href=""> 
-                                    <div className="flex gap-1">
+                            <Link href="">
+                                <div className="flex hover:underline">¿Olvidaste la contraseña?</div>
+                            </Link>
+
+
+                            <Link href="">
+                                <div className="flex gap-1">
                                     <span className="text-black"> ¿No tienes una cuenta?  </span>
                                     <p className="hover:underline">Create una</p>
-                                    </div>
-                                </Link>
+                                </div>
+                            </Link>
                         </div>
                     </div>
                 </div>

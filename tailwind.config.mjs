@@ -12,6 +12,12 @@ export default {
         colorHover: "#5f17bf",
         colorFondo: "#e7d7fd",
         colorLoginForm: "#161616",
+
+        //Colores de alerta
+        colorExito: '#155724',
+        colorAdvertencia: '#826404',
+        colorPeligro: '#721C24',
+
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
