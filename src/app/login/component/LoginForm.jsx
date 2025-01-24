@@ -6,70 +6,91 @@ import Link from "next/link";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Alert from "./ui/Alert";
+import loginUser from "../services/loginController";
+import ErrorAlert from "./ui/alerts/ErrorAlert";
+import SuccesAlert from "./ui/alerts/SuccesAlert";
 
 export default function LoginForm() {
     //Inicializa en vacio
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
     //Inicializa en falso
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false)
 
     //Cambio de estados de componentes 
-    const [isAlertVisibleEmail, setIsAlertVisibleEmail] = useState(false);
-    const [isAlertVisiblePassword, setIsAlertVisiblePassword] = useState(false);
+    const [isAlertVisibleEmail, setIsAlertVisibleEmail] = useState(false)
+    const [isAlertVisiblePassword, setIsAlertVisiblePassword] = useState(false)
 
-    //Función para enviar datos
+    //Cambio de Sweet Alert 
+    const [isErrorAlert, setIsErrorAlert] = useState(false)
+    const [isSuccesAlert, setIsSuccesAlert] = useState(false)
+    const [messageAlert, setMessageAlert] = useState('')
+    
+
+    //Crear formulario para enviar 
+    const loginUsuario = async (_email, _password) => {
+        try {
+            const response = await loginUser(_email, _password)
+            return response
+        } catch (error) {
+            console.error(error, '500')
+            return {succes: false, message: "Error del servidor"}
+        }
+        
+
+    }
+
     const enviarFormulario = (e) => {
-        e.preventDefault();
 
-        //Condicionales para detectar si los elementos se estan enviando completos 
-        /**
-         * true = listo para enviar
-         * false = no se envio
-         */
+        e.preventDefault()
 
         let decisionCorreo = true;
         let decisionContraseña = true;
 
-        // Validar email
         if (email === '') {
             decisionCorreo = false;
             if (!isAlertVisibleEmail) {
-                setIsAlertVisibleEmail(true); // Muestra la alerta para el email vacío
+                setIsAlertVisibleEmail(true);
             }
         } else {
             if (isAlertVisibleEmail) {
-                setIsAlertVisibleEmail(false); // Oculta la alerta si el email es válido
+                setIsAlertVisibleEmail(false);
             }
         }
 
-        // Validar contraseña
         if (password === '') {
             decisionContraseña = false;
             if (!isAlertVisiblePassword) {
-                setIsAlertVisiblePassword(true); // Muestra la alerta para la contraseña vacía
+                setIsAlertVisiblePassword(true);
             }
         } else {
             if (isAlertVisiblePassword) {
-                setIsAlertVisiblePassword(false); // Oculta la alerta si la contraseña es válida
+                setIsAlertVisiblePassword(false);
             }
         }
 
-        // Verificar si ambos campos son válidos
         if (decisionCorreo && decisionContraseña) {
-            console.log("Enviado");
-            console.log("Email:", email);
-            console.log("Password:", password);
+            loginUsuario(email, password).then((response) => {
+                if (response.succes) { 
+                    setIsSuccesAlert(true)
+                    setMessageAlert("Se inicio correctamente la sesión")
+                } else {
+                    setIsErrorAlert(true)
+                    setMessageAlert("¡Error! No se logro iniciar sesión")
+                }
+            }).catch((error) => {
+                setMessageAlert('¡Error! Error de servidor')
+                setIsErrorAlert(true)
+                console.error(error, '500')
+            })
         }
+    }
 
 
-
-    };
-
-    const mostrarContraseña = (e) => {
+    const mostrarContraseña = () => {
         setShowPassword(prevState => !prevState)
-    };
+    }
 
     return (
         <div className="mx-auto my-auto w-screen h-screen items-center flex-col overflow-y-auto overflow-x-hidden lg:overflow-hidden">
@@ -86,7 +107,9 @@ export default function LoginForm() {
                     <span className="w-35"></span>
                 </div>
             </header>
-    
+            {/* Alertas */}
+            { isSuccesAlert && <SuccesAlert text={messageAlert} redirectUrl='/home' />}
+            { isErrorAlert && <ErrorAlert text={messageAlert} reload={true} />}
             <div>
                 <div className="flex container mx-auto my-auto w-screen h-screen items-center flex-col">
                     <div className="text-colorHover items-center">
@@ -94,7 +117,7 @@ export default function LoginForm() {
                             <p className="text-[3rem]">!Bienvenido!</p>
                         </div>
                     </div>
-    
+
                     <div className="w-full md:w-3/4 lg:w-1/2 flex flex-col items-center bg-slate-100 rounded-md pt-12 shadow-xl">
                         <form onSubmit={enviarFormulario} className="w-3/4">
                             <div className="mb-6">
@@ -110,10 +133,10 @@ export default function LoginForm() {
                                 <Alert
                                     isMessageAlert={isAlertVisibleEmail}
                                     typeProp="advertencia"
-                                    messageAlert="Debe rellenar este campo"
+                                    messageAlert="Debes rellenar este campo"
                                 />
                             </div>
-    
+
                             <div className="mb-6">
                                 <div className="flex items-center relative z-50">
                                     <input
@@ -125,7 +148,7 @@ export default function LoginForm() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                     />
-    
+
                                     <span
                                         className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-600"
                                         onClick={mostrarContraseña}
@@ -137,14 +160,15 @@ export default function LoginForm() {
                                 <Alert
                                     isMessageAlert={isAlertVisiblePassword}
                                     typeProp="advertencia"
-                                    messageAlert="Debe rellenar este campo"
+                                    messageAlert="Debes rellenar este campo"
                                 />
                             </div>
-    
+
                             <div className="mb-12">
                                 <button type="submit" className="py-4 bg-colorHover w-full rounded text-blue-50 font-bold hover:shadow-md">Ingresar</button>
+
                                 <p className="text-center">o continua con</p>
-                                <button type="submit" className="py-4 bg-white w-full rounded text-black shadow-md hover:shadow-2xl">
+                                <button className="py-4 bg-white w-full rounded text-black shadow-md hover:shadow-2xl">
                                     <div className="flex items-center justify-center space-x-2 gap-4">
                                         Ingresar con Google
                                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 48 48">
@@ -155,14 +179,14 @@ export default function LoginForm() {
                             </div>
                         </form>
                     </div>
-    
+
                     <div className="flex justify-center container mx-auto mt-6 text-colorHover text-sm">
                         <div className="flex flex-col sm:flex-row justify-between md:w-1/2 items-center">
                             <Link href="">
                                 <div className="flex hover:underline">¿Olvidaste la contraseña?</div>
                             </Link>
-    
-                            <Link href="">
+
+                            <Link href="/register">
                                 <div className="flex gap-1">
                                     <span className="text-black"> ¿No tienes una cuenta?  </span>
                                     <p className="hover:underline">Create una</p>
@@ -174,5 +198,5 @@ export default function LoginForm() {
             </div>
         </div>
     );
-    
+
 }

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Excepción de cliente secreto 
+!client_secret_504010563247-cp334b75af3hlsbe78270bkmmt6tuul6.apps.googleusercontent.com.json
